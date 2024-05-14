@@ -73,8 +73,11 @@ It is not recommended to change the user agent information. You will be returned
 *ENV*
 
 **browserLimit** Allows you to set the maximum number of browsers that can be opened at the same time. The default is 20. If exceeded, api will return error code 429.
+
 **timeOut** Sets the maximum time a transaction will take. The default is 30000. Must be given in milliseconds.
+
 **authToken** Not mandatory. If not set, all requests are allowed. If set, the request must be sent with the authToken variable in the request body.
+
 **PORT** The default is 3000. It is not recommended to change it.
 
 Sample Response
