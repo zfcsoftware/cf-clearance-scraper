@@ -18,7 +18,6 @@ docker run -d -p 3000:3000 \
 -e PORT=3000 \
 -e browserLimit=20 \
 -e timeOut=30000 \
--e authToken=false \
 zfcsoftware/cf-clearance-scraper
 
 ```
@@ -106,3 +105,11 @@ Sample Response
         "url": "https://nopecha.com/demo/cloudflare"
     }
 ```
+
+## Support us
+
+Please star the repo to help this open source project get updates. Your star will help us a lot.
+
+## Disclaimer of Liability
+
+This library has been created for testing and educational purposes. The user is responsible for any problems that may arise. You can start a discussion for any problems you are experiencing, but you should avoid messages that will disturb or force the developer. This project is completely open source. Please support it with a star rating.
