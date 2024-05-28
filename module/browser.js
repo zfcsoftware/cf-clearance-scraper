@@ -79,11 +79,13 @@ const main = async ({
         setSolveStatus({ status: true })
 
 
-        var xvfbsession = new Xvfb({
-            silent: true,
-            xvfb_args: ['-screen', '0', '1920x1080x24', '-ac']
-        });
-        xvfbsession.startSync();
+        try {
+            var xvfbsession = new Xvfb({
+                silent: true,
+                xvfb_args: ['-screen', '0', '1920x1080x24', '-ac']
+            });
+            xvfbsession.startSync();
+        } catch (err) { }
 
 
         const browser = await puppeteer.launch({
@@ -108,7 +110,7 @@ const main = async ({
         if (proxy.username && proxy.password) await page.authenticate({ username: proxy.username, password: proxy.password });
 
         if (agent) await page.setUserAgent(agent);
-
+      
         browser.on('disconnected', async () => {
             try { xvfbsession.stopSync(); } catch (err) { }
             try { setSolveStatus({ status: false }) } catch (err) { }

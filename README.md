@@ -2,7 +2,7 @@
 
 This package provides an api that returns cookies (cf-clearance) that you can request on a website protected by Cloudflare WAF (corporate or normal) without being blocked by WAF.
 
-When checking your requests, Cloudflare does not only check the Cookie. It also checks IP and User Agent. For this reason, you should send your requests by setting User Agent, IP and Cookie.
+When checking your requests, Cloudflare does not only check the Cookie. It also checks IP and User Agent. For this reason, you should send your requests by setting User Agent, IP and Cookie. If you add the headers object in the response directly to the headers of your request, your request will be successful. Tested on sites protected with Cloudflare enterprise plan.
 
 Cookies with cf in the name belong to Cloudflare. You can find out what these cookies do and how long they are valid by **[Clicking Here](https://developers.cloudflare.com/fundamentals/reference/policies-compliances/cloudflare-cookies/)**.
 
@@ -83,30 +83,50 @@ It is not recommended to change the user agent information. You will be returned
 Sample Response
 
 ```js
-    {
-        "code": 200,
-        "cookies": [
-            {
-                "name": "cf_clearance",
-                "value": "pwmJ7kRHD41XrsEasuBMrLDwmSr7qcacgxwIhHVpKWY-1715642133-1.0.1.1-go3FxcDfJdvUqz.aWX03tQL9Z_duip.S0hSVnno4U94Xj.cfczNEpjMM5F5azfIxg5capVQJXX_sc7YJ8Qvj0w",
-                "domain": ".nopecha.com",
-                "path": "/",
-                "expires": 1747178137.666717,
-                "size": 161,
-                "httpOnly": true,
-                "secure": true,
-                "session": false,
-                "sameSite": "None",
-                "priority": "Medium",
-                "sameParty": false,
-                "sourceScheme": "Secure",
-                "partitionKey": "https://nopecha.com"
-            }
-        ],
-        "agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-        "proxy": {},
-        "url": "https://nopecha.com/demo/cloudflare"
+  {
+    "code": 200,
+    "cookies": [
+        {
+            "name": "cf_clearance",
+            "value": "NOA3tAWyodzOAb8X3Ae3R5UFTIvvGflfnQaboTKJwZ8-1716899254-1.0.1.1-x18bw9OFEDYSLDNSXZY3E9huAowzZXX0qhd3n7_PnwsqtVSJi6JII7DZ_sBXVpS1drLeAOhaUIbMDYq4vbkBnA",
+            "domain": ".nopecha.com",
+            "path": "/",
+            "expires": 1748435257.058819,
+            "size": 161,
+            "httpOnly": true,
+            "secure": true,
+            "session": false,
+            "sameSite": "None",
+            "priority": "Medium",
+            "sameParty": false,
+            "sourceScheme": "Secure",
+            "partitionKey": "https://nopecha.com"
+        }
+    ],
+    "agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+    "proxy": {},
+    "url": "https://nopecha.com/demo/cloudflare",
+    "headers": {
+        "accept-language": "en-US,en;q=0.9",
+        "upgrade-insecure-requests": "1",
+        "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+        "sec-ch-ua": "\"Not-A.Brand\";v=\"99\", \"Chromium\";v=\"124\"",
+        "sec-ch-ua-mobile": "?0",
+        "sec-ch-ua-platform": "\"Linux\"",
+        "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+        "host": "nopecha.com",
+        "sec-ch-ua-arch": "\"x86\"",
+        "sec-ch-ua-bitness": "\"64\"",
+        "sec-ch-ua-full-version": "\"124.0.6367.201\"",
+        "sec-ch-ua-full-version-list": "\"Not-A.Brand\";v=\"99.0.0.0\", \"Chromium\";v=\"124.0.6367.201\"",
+        "sec-ch-ua-model": "\"\"",
+        "sec-ch-ua-platform-version": "\"6.5.0\"",
+        "content-type": "application/x-www-form-urlencoded",
+        "origin": "https://nopecha.com",
+        "referer": "https://nopecha.com/demo/cloudflare?__cf_chl_tk=zBTFi8_2iwW24b49NbcAZtppcSPfJhNgEqt31K4DpbM-1716899254-0.0.1.1-1365",
+        "cookie": "cf_clearance=NOA3tAWyodzOAb8X3Ae3R5UFTIvvGflfnQaboTKJwZ8-1716899254-1.0.1.1-x18bw9OFEDYSLDNSXZY3E9huAowzZXX0qhd3n7_PnwsqtVSJi6JII7DZ_sBXVpS1drLeAOhaUIbMDYq4vbkBnA"
     }
+}
 ```
 
 ## Support us
