@@ -17,7 +17,8 @@ function formatLanguage(languages) {
 const scrape = async ({ proxy = {},
     agent = null,
     url = 'https://nopecha.com/demo/cloudflare',
-    defaultCookies = false
+    defaultCookies = false,
+    mode = 'waf'
 }) => {
     return new Promise(async (resolve, reject) => {
         global.browserLength++
@@ -39,25 +40,58 @@ const scrape = async ({ proxy = {},
             var browserLanguages = await page.evaluate(() => navigator.languages);
 
             headers['accept-language'] = formatLanguage(browserLanguages)
-            
+
             await page.setExtraHTTPHeaders({
                 'accept-language': headers['accept-language']
             });
 
+            if (!agent) agent = await page.evaluate(() => navigator.userAgent);
+
             await page.setRequestInterception(true);
 
-            page.on('request', request => {
-                request.continue();
-                if (request.url() === url) {
-                    const reqHeaders = request.headers();
-                    delete reqHeaders['cookie'];
-                    headers = { ...headers, ...reqHeaders, host: new URL(url).hostname };
+            page.on('request', (request) => {
+
+                if (request.resourceType() === 'stylesheet' || request.resourceType() === 'font' || request.resourceType() === 'image' || request.resourceType() === 'media') {
+                    request.abort();
+                } else {
+                    request.continue();
+                    if (request.url() === url) {
+                        const reqHeaders = request.headers();
+                        delete reqHeaders['cookie'];
+                        headers = { ...headers, ...reqHeaders, host: new URL(url).hostname };
+                    }
+                }
+
+            });
+
+            page.on('response', async (response) => {
+                if (response.url().includes('/verify/turnstile') && mode == 'captcha') {
+                    try {
+                        const responseBody = await response.json();
+                        if (responseBody && responseBody.token) {
+                            var cookies = await page.cookies()
+                            try { browser.close() } catch (err) { }
+                            resolve({ code: 200, cookies, agent, proxy, url, headers, turnstile: responseBody })
+                        }
+                    } catch (err) { }
+                } else if (mode == 'captcha') {
+                    var checkToken = await page.evaluate(() => {
+                        var cfItem = document.querySelector('[name="cf-turnstile-response"]')
+                        return cfItem && cfItem.value && cfItem.value.length > 0 ? cfItem.value : false
+                    }).catch(err => { return false })
+                    if (checkToken) {
+                        var cookies = await page.cookies()
+                        try { browser.close() } catch (err) { }
+                        return resolve({ code: 200, cookies, agent, proxy, url, headers, turnstile: { token: checkToken } })
+                    }
                 }
             });
 
             await page.goto(url, {
                 waitUntil: ['load', 'networkidle0']
             })
+
+            if (mode == 'captcha') return
 
             var cookies = false
 
@@ -73,8 +107,9 @@ const scrape = async ({ proxy = {},
                     return resolve({ code: 500, message: 'Request Timeout' })
                 }
             }
+
+
             headers['cookie'] = cookies.map(cookie => `${cookie.name}=${cookie.value}`).join('; ')
-            if (!agent) agent = await page.evaluate(() => navigator.userAgent);
 
             await browser.close()
             global.browserLength--
