@@ -70,6 +70,7 @@ const scrape = async ({ proxy = {},
                         const responseBody = await response.json();
                         if (responseBody && responseBody.token) {
                             var cookies = await page.cookies()
+                            global.browserLength--
                             try { browser.close() } catch (err) { }
                             resolve({ code: 200, cookies, agent, proxy, url, headers, turnstile: responseBody })
                         }
@@ -81,6 +82,7 @@ const scrape = async ({ proxy = {},
                     }).catch(err => { return false })
                     if (checkToken) {
                         var cookies = await page.cookies()
+                        global.browserLength--
                         try { browser.close() } catch (err) { }
                         return resolve({ code: 200, cookies, agent, proxy, url, headers, turnstile: { token: checkToken } })
                     }
