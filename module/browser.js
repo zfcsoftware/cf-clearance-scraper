@@ -3,35 +3,24 @@ const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 puppeteer.use(StealthPlugin());
 var Xvfb = require('xvfb');
 
-
 const checkStat = ({ page }) => {
     return new Promise(async (resolve, reject) => {
+
         var st = setTimeout(() => {
             clearInterval(st)
             resolve(false)
         }, 4000);
         try {
-            var domain = '';
-            try {
-                const pageURL = await page.url();
-                const url = new URL(pageURL);
-                domain = url.hostname;
-            } catch (err) { }
-            const frames = await page.frames().filter(frame => {
-                return frame.url().includes('cloudflare') || frame.url().includes(domain)
-            });
-            if (frames.length <= 0) {
-                clearInterval(st)
-                return resolve(false)
-            }
-            const elements = await page.$$('iframe');
+            const elements = await page.$$('.cf-turnstile-wrapper');
+            if (elements.length <= 0) return resolve(false);
             for (const element of elements) {
                 try {
-                    const srcProperty = await element.getProperty('src');
-                    const srcValue = await srcProperty.jsonValue();
-                    if (srcValue.includes('turnstile')) {
-                        await element.click();
-                    }
+                    const box = await element.boundingBox();
+
+                    const x = box.x + box.width / 2;
+                    const y = box.y + box.height / 2;
+
+                    await page.mouse.click(x, y);
                 } catch (err) { }
             }
             clearInterval(st)
@@ -110,7 +99,7 @@ const main = async ({
         if (proxy.username && proxy.password) await page.authenticate({ username: proxy.username, password: proxy.password });
 
         if (agent) await page.setUserAgent(agent);
-      
+
         browser.on('disconnected', async () => {
             try { xvfbsession.stopSync(); } catch (err) { }
             try { setSolveStatus({ status: false }) } catch (err) { }
