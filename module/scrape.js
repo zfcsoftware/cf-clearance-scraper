@@ -90,7 +90,8 @@ const scrape = async ({ proxy = {},
             });
 
             await page.goto(url, {
-                waitUntil: ['load', 'networkidle0']
+                waitUntil: ['load', 'networkidle0'],
+                timeout: global.timeOut
             })
 
             if (mode == 'captcha') return
