@@ -8,6 +8,7 @@ function checkTimeOut(startTime, endTime = new Date().getTime()) {
 
 function formatLanguage(languages) {
     var str = ''
+    if (languages.length == 1) return languages[0]
     if (languages[0]) str += `${languages[0]},${languages[1]};q=0.9`
     if (languages[2]) str += `,${languages[2]};q=0.8`
     if (languages[3]) str += `,${languages[3]};q=0.7`
@@ -49,25 +50,24 @@ const scrape = async ({ proxy = {},
             if (!agent) agent = await page.evaluate(() => navigator.userAgent);
 
 
-            if (blockMedia) {
-                await page.setRequestInterception(true);
+            await page.setRequestInterception(true);
 
-                page.on('request', (request) => {
+            page.on('request', (request) => {
 
-                    if (request.resourceType() === 'stylesheet' || request.resourceType() === 'font' || request.resourceType() === 'image' || request.resourceType() === 'media') {
-                        request.abort();
-                    } else {
-                        request.continue();
-                        if (request.url() === url) {
-                            const reqHeaders = request.headers();
-                            delete reqHeaders['cookie'];
-                            headers = { ...headers, ...reqHeaders, host: new URL(url).hostname };
-                        }
+                if (request.resourceType() === 'stylesheet' || request.resourceType() === 'font' || request.resourceType() === 'image' || request.resourceType() === 'media') {
+                    if (blockMedia) request.abort();
+                    else request.continue();
+                } else {
+                    request.continue();
+                    if (request.url() === url) {
+                        const reqHeaders = request.headers();
+                        delete reqHeaders['cookie'];
+                        headers = { ...headers, ...reqHeaders, host: new URL(url).hostname };
                     }
+                }
 
-                });
-            
-            }
+            });
+
 
 
             page.on('response', async (response) => {
