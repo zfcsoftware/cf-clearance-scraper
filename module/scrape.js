@@ -18,7 +18,8 @@ const scrape = async ({ proxy = {},
     agent = null,
     url = 'https://nopecha.com/demo/cloudflare',
     defaultCookies = false,
-    mode = 'waf'
+    mode = 'waf', // or captcha
+    blockMedia = true
 }) => {
     return new Promise(async (resolve, reject) => {
         global.browserLength++
@@ -47,22 +48,27 @@ const scrape = async ({ proxy = {},
 
             if (!agent) agent = await page.evaluate(() => navigator.userAgent);
 
-            await page.setRequestInterception(true);
 
-            page.on('request', (request) => {
+            if (blockMedia) {
+                await page.setRequestInterception(true);
 
-                if (request.resourceType() === 'stylesheet' || request.resourceType() === 'font' || request.resourceType() === 'image' || request.resourceType() === 'media') {
-                    request.abort();
-                } else {
-                    request.continue();
-                    if (request.url() === url) {
-                        const reqHeaders = request.headers();
-                        delete reqHeaders['cookie'];
-                        headers = { ...headers, ...reqHeaders, host: new URL(url).hostname };
+                page.on('request', (request) => {
+
+                    if (request.resourceType() === 'stylesheet' || request.resourceType() === 'font' || request.resourceType() === 'image' || request.resourceType() === 'media') {
+                        request.abort();
+                    } else {
+                        request.continue();
+                        if (request.url() === url) {
+                            const reqHeaders = request.headers();
+                            delete reqHeaders['cookie'];
+                            headers = { ...headers, ...reqHeaders, host: new URL(url).hostname };
+                        }
                     }
-                }
 
-            });
+                });
+            
+            }
+
 
             page.on('response', async (response) => {
                 if (response.url().includes('/verify/turnstile') && mode == 'captcha') {
@@ -89,10 +95,8 @@ const scrape = async ({ proxy = {},
                 }
             });
 
-            await page.goto(url, {
-                waitUntil: ['load', 'networkidle0']
-            })
-
+            page.goto(url).catch(err => { })
+            await page.waitForSelector('body', { timeout: 20000 }).catch(err => { })
             if (mode == 'captcha') return
 
             var cookies = false

@@ -20,7 +20,7 @@ docker run -d -p 3000:3000 \
 -e PORT=3000 \
 -e browserLimit=20 \
 -e timeOut=30000 \
-zfcsoftware/cf-clearance-scraper
+zfcsoftware/cf-clearance-scraper:latest
 
 ```
 **Github**
@@ -48,6 +48,7 @@ It is not recommended to change the user agent information. You will be returned
             mode:"waf", // gets waf or captcha values
             // agent: null,
             // defaultCookies: [],
+            // blockMedia: true // or false
             // Proxy information (not mandatory)
             // proxy: {
             //     host: '1.1.1.1',
@@ -84,6 +85,8 @@ It is not recommended to change the user agent information. You will be returned
 **authToken** Not mandatory. If not set, all requests are allowed. If set, the request must be sent with the authToken variable in the request body.
 
 **PORT** The default is 3000. It is not recommended to change it.
+
+**blockMedia** If the default true is used, it saves resources by preventing the loading of resources such as fonts, images, css. However, it prevents the library from working correctly on some sites. If the captcha cannot be passed and a timeout error is received, you must send false.
 
 Sample WAF Response
 
