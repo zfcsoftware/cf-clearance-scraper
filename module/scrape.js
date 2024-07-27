@@ -20,7 +20,7 @@ const scrape = async ({ proxy = {},
     url = 'https://nopecha.com/demo/cloudflare',
     defaultCookies = false,
     mode = 'waf', // or captcha
-    blockMedia = true
+    blockMedia = false
 }) => {
     return new Promise(async (resolve, reject) => {
         global.browserLength++
