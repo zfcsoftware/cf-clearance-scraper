@@ -43,9 +43,9 @@ const scrape = async ({ proxy = {},
 
             headers['accept-language'] = formatLanguage(browserLanguages)
 
-            await page.setExtraHTTPHeaders({
-                'accept-language': headers['accept-language']
-            });
+            // await page.setExtraHTTPHeaders({
+            //     'accept-language': headers['accept-language']
+            // });
 
             if (!agent) agent = await page.evaluate(() => navigator.userAgent);
 
